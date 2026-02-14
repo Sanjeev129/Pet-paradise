@@ -1,0 +1,101 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en" class="white">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pet Paradise - Favorites</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+    }
+    .dark body {
+      background: linear-gradient(to right, #1f2937, #111827);
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="text-gray-900 dark:text-gray-100">
+
+  <!-- Navbar -->
+  <header class="flex justify-between items-center p-6 bg-white dark:bg-gray-800 shadow-md">
+    <h1 class="text-2xl font-bold">🐾 Pet Paradise</h1>
+    <nav class="flex items-center gap-6">
+      <a href="home.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">Home</a>
+      <a href="gallery.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">Gallery</a>
+      <a href="favorites.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">Favorites</a>
+      <a href="adopt.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">Adopt pets</a>
+      <a href="about.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">About</a>
+      <a href="contact.php" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold">Contact</a>
+    </nav>
+    <div class="flex items-center gap-4">
+      <button onclick="toggleTheme()" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">🌓</button>
+    </div>
+  </header>
+
+  <main class="p-6 max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6 text-center">❤️ Your Favorite Pets</h2>
+    <div
+      id="favoritesList"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+    ></div>
+  </main>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    function renderFavorites() {
+      const favoritesList = document.getElementById("favoritesList");
+      const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+      favoritesList.innerHTML = "";
+
+      if (favs.length === 0) {
+        favoritesList.innerHTML = `<p class="text-center col-span-full text-gray-600 dark:text-gray-400">You have no favorites saved yet.</p>`;
+        return;
+      }
+
+      favs.forEach((pet) => {
+        const card = document.createElement("div");
+        card.className = "glass p-4 rounded-xl shadow-md text-center";
+        card.setAttribute("data-aos", "fade-up");
+        card.innerHTML = `
+          <img src="${pet.img}" alt="${pet.name}" class="w-full h-32 object-cover rounded mb-2" />
+          <h4 class="font-semibold">${pet.name}</h4>
+          <p class="text-sm mb-2">${pet.type}</p>
+          <button onclick="removeFavorite('${pet.name}')" class="bg-red-500 text-white px-2 py-1 rounded text-sm">🗑 Remove</button>
+        `;
+        favoritesList.appendChild(card);
+      });
+      AOS.refresh();
+    }
+
+    function removeFavorite(name) {
+      let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+      favs = favs.filter((p) => p.name !== name);
+      localStorage.setItem("favorites", JSON.stringify(favs));
+      renderFavorites();
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle("dark");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderFavorites();
+    });
+
+    AOS.init({ duration: 800, once: true });
+  </script>
+</body>
+</html>
